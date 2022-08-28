@@ -85,3 +85,21 @@ def mutation_illustration():
     axarr[1].set_title("Post-Mutation")
     plt.show()
 
+def vertical_test():
+    ind1 = Individual(200,200)
+    ind2 = Individual(200,200)
+
+    gp = GP(r"davidson3.png")
+
+    child1 = gp.crossover_2(ind1,ind2, 0.5)
+    
+    f, axarr = plt.subplots(1,3)
+    axarr[0].imshow(ind1.image)
+    axarr[0].set_title("Parent 1")
+    axarr[1].imshow(ind2.image)
+    axarr[1].set_title("Parent 2")
+    axarr[2].imshow(child1.image)
+    axarr[2].set_title("Child")
+    plt.show()
+
+vertical_test()

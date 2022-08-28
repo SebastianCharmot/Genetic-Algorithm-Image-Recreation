@@ -73,7 +73,7 @@ class Individual:
     def add_shape(self):
         iterations = random.randint(1, 1)
 
-        region = (self.l + self.w)//8
+        region = random.randint(1,(self.l + self.w)//4)
 
         img = self.image
 

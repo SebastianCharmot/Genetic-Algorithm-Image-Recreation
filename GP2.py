@@ -11,8 +11,15 @@ import matplotlib.pyplot as plt
 class GP:
     def __init__(self, filename):
         original_image = Image.open(filename)
+
+        # davidson image 
+        # self.target_image = original_image.resize((160,120))
+
+        # debugging 
+        self.target_image = original_image.resize((200,200))
         
-        self.target_image = original_image.resize((160,120))
+        # mona lisa image
+        # self.target_image = original_image.resize((111,166))
 
         self.l, self.w = self.target_image.size
         
@@ -57,7 +64,7 @@ class GP:
 
                 #         child = self.crossover(parent_one, parent_two)
                         
-                if rand <= 0.7:
+                if rand <= 0.5:
                     child = self.crossover(parent_one, parent_two)
 
                     while child == None:
@@ -66,14 +73,14 @@ class GP:
 
                         child = self.crossover(parent_one, parent_two)
 
-                elif rand <= 0.95:
-                    child = self.crossover_2(parent_one, parent_two)
+                elif rand <= 0.9:
+                    child = self.crossover_2(parent_one, parent_two, 0.5)
 
                     while child == None:
                         parent_one = self.tournament_select(population)
                         parent_two = self.tournament_select(population)
 
-                        child = self.crossover_2(parent_one, parent_two)
+                        child = self.crossover_2(parent_one, parent_two, 0.5)
                     
                 # perform mutate some percentage of the time
                 # elif rand <= 0.93:
@@ -81,8 +88,12 @@ class GP:
                 #     child = parent_one
                 
                 else:
-                    self.mutate(parent_one)
-                    child = parent_one
+                    child = self.mutate(parent_one)
+
+                    while child == None:
+                        parent_one = self.tournament_select(population)
+                        child = self.mutate(parent_one)
+                    # child = parent_one
 
                 # make a new individual
                 # else:
@@ -129,7 +140,7 @@ class GP:
 #             display(fittest)
 
     def tournament_select(self, population):
-        tournament_size = 8
+        tournament_size = 4
 
         indices = np.random.choice(len(population), tournament_size)
 
@@ -168,12 +179,59 @@ class GP:
 
         return None
     
-    def crossover_2(self, ind1, ind2):
-        split_point = random.randint(1, self.w)
+    def crossover_2(self, ind1, ind2, horizontal_prob):
+
+        rand = random.random()
+
+        if rand <= horizontal_prob:
+
+            split_point = random.randint(1, self.w)
+            
+            first = np.ones((split_point, self.l))
+            first = np.vstack((first, np.zeros((self.w-split_point, self.l))))
+
+        else:
+            split_point = random.randint(1, self.l)
         
-        first = np.ones((split_point, self.l))
-        first = np.vstack((first, np.zeros((self.w-split_point, self.l))))
+            first = np.ones((self.w, split_point))
+
+            first = np.hstack((first, np.zeros((self.w, self.l-split_point))))
+            
+        second = 1 - first
+
+        # Creates the 4 dimensional versions to perform the mutliplying across all color channels 
+        first = np.dstack([first,first,first,first])
+        second = np.dstack([second,second,second,second])
+
+        # Multiply parent1 with first and multiply parent2 with second. Then simplay add them element wise and it should produce the crossover child.
+
+        half_chromo_1 = np.multiply(first, ind1.array)
+        half_chromo_2 = np.multiply(second, ind2.array)
         
+        child_array = np.add(half_chromo_1, half_chromo_2)
+        
+        child = Individual(self.l, self.w)
+        
+        child.image = Image.fromarray(child_array.astype(np.uint8))
+        child.array = child_array.astype(np.uint8)
+        
+        child.get_fitness(self.target_image)
+
+        if child.fitness == min(ind1.fitness, ind2.fitness, child.fitness):
+            return child
+
+        return None
+
+    # superfluous
+    def crossover_vertical(self, ind1, ind2):
+        # split_point = random.randint(1, self.l) 
+
+        split_point = self.l // 2
+        
+        first = np.ones((self.w, split_point))
+
+        first = np.hstack((first, np.zeros((self.w, self.l-split_point))))
+
         second = 1 - first
 
         # Creates the 4 dimensional versions to perform the mutliplying across all color channels 
@@ -218,10 +276,39 @@ class GP:
         child.get_fitness(self.target_image)
         
         return child
-    
 
     def mutate(self, ind):
-        ind.add_shape()
+
+        iterations = random.randint(1, 3)
+        region = random.randint(1,(self.l + self.w)//4)
+
+        img = ind.image
+
+        for i in range(iterations):
+            num_points = random.randint(3, 6)
+            region_x = random.randint(0, self.l)
+            region_y = random.randint(0, self.w)
+
+            xy = []
+            for j in range(num_points):
+                xy.append((random.randint(region_x - region, region_x + region),
+                           random.randint(region_y - region, region_y + region)))
+
+            img1 = ImageDraw.Draw(img)
+            img1.polygon(xy, fill=ind.rand_color())
+
+        child = Individual(ind.l, ind.w)
+        child.image = img
+        child.array = child.to_array(child.image)
+        child.get_fitness(self.target_image)
+
+        return child 
+
+        if child.fitness == min(ind.fitness, child.fitness):
+            return child
+
+        return None
+
         
     def mutate_2(self, ind):
         constant = 40
@@ -247,7 +334,7 @@ class GP:
 def main():
     gp = GP(r"davidson3.png")
 
-    fittest = gp.run_gp(200, 1000)
+    fittest = gp.run_gp(100, 1000)
     plt.imshow(fittest.image)
     plt.show()
 

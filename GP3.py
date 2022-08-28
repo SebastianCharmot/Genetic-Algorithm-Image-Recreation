@@ -11,8 +11,12 @@ import matplotlib.pyplot as plt
 class GP:
     def __init__(self, filename):
         original_image = Image.open(filename)
+
+        # davidson image 
+        self.target_image = original_image.resize((160,120))
         
-        self.target_image = original_image.resize((100,100))
+        # mona lisa image
+        # self.target_image = original_image.resize((111,166))
 
         self.l, self.w = self.target_image.size
         
@@ -48,28 +52,42 @@ class GP:
                 # used to probabilistically determine how child of both parents is created 
                 rand = random.uniform(0, 1)
 
+                # if rand <= 0.23:
+                #     child = self.crossover(parent_one, parent_two)
+
+                #     while child == None:
+                #         parent_one = self.tournament_select(population)
+                #         parent_two = self.tournament_select(population)
+
+                #         child = self.crossover(parent_one, parent_two)
+                        
                 if rand <= 0.15:
                     child = self.crossover(parent_one, parent_two)
 
-                    while child == None:
-                        parent_one = self.tournament_select(population)
-                        parent_two = self.tournament_select(population)
+                    # while child == None:
+                    #     parent_one = self.tournament_select(population)
+                    #     parent_two = self.tournament_select(population)
 
-                        child = self.crossover(parent_one, parent_two)
-                        
+                    #     child = self.crossover(parent_one, parent_two)
+
                 elif rand <= 0.95:
                     child = self.crossover_2(parent_one, parent_two)
 
-                    while child == None:
-                        parent_one = self.tournament_select(population)
-                        parent_two = self.tournament_select(population)
+                    # while child == None:
+                    #     parent_one = self.tournament_select(population)
+                    #     parent_two = self.tournament_select(population)
 
-                        child = self.crossover_2(parent_one, parent_two)
+                    #     child = self.crossover_2(parent_one, parent_two)
                     
                 # perform mutate some percentage of the time
+                # elif rand <= 0.93:
+                #     self.mutate_2(parent_one)
+                #     child = parent_one
+                
                 else:
-                    self.mutate(parent_one)
-                    child = parent_one
+                    # self.mutate(parent_one)
+                    # child = parent_one
+                    child = self.crossover_3(parent_one, parent_two)
 
                 # make a new individual
                 # else:
@@ -116,7 +134,7 @@ class GP:
 #             display(fittest)
 
     def tournament_select(self, population):
-        tournament_size = 4
+        tournament_size = 8
 
         indices = np.random.choice(len(population), tournament_size)
 
@@ -150,10 +168,10 @@ class GP:
         child.array = np.array(child_image)
         child.get_fitness(self.target_image)
 
-        if child.fitness == min(ind1.fitness, ind2.fitness, child.fitness):
-            return child
+        # if child.fitness == min(ind1.fitness, ind2.fitness, child.fitness):
+        #     return child
 
-        return None
+        return child
     
     def crossover_2(self, ind1, ind2):
         split_point = random.randint(1, self.w)
@@ -181,10 +199,10 @@ class GP:
         
         child.get_fitness(self.target_image)
 
-        if child.fitness == min(ind1.fitness, ind2.fitness, child.fitness):
-            return child
+        # if child.fitness == min(ind1.fitness, ind2.fitness, child.fitness):
+        #     return child
 
-        return None
+        return child
     
     def crossover_3(self, ind1, ind2):
         first = np.random.randint(2, size=(self.w, self.l, 4))
@@ -211,9 +229,9 @@ class GP:
         ind.add_shape()
         
     def mutate_2(self, ind):
-        constant = 10
+        constant = 40
         
-        num_pix = 10
+        num_pix = 40
         
         for i in range(num_pix):
             x = random.randint(0, self.l-1)
@@ -237,6 +255,23 @@ def main():
     fittest = gp.run_gp(100, 1000)
     plt.imshow(fittest.image)
     plt.show()
+
+    # gp = GP(r"davidson2.png")
+
+    # ind1 = Individual(100, 100)
+    # plt.imshow(ind1.image)
+    # plt.show()
+    # ind2 = Individual(100, 100)
+    # plt.imshow(ind2.image)
+    # plt.show()
+
+    # ind3 = gp.crossover_3(ind1, ind2)
+    # plt.imshow(ind3.image)
+    # plt.show()
+
+
+
+
 
 if __name__ == "__main__":
     main()
