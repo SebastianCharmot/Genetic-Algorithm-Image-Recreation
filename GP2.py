@@ -12,7 +12,7 @@ class GP:
     def __init__(self, filename):
         original_image = Image.open(filename)
         
-        self.target_image = original_image.resize((100,100))
+        self.target_image = original_image.resize((160,120))
 
         self.l, self.w = self.target_image.size
         
@@ -48,7 +48,16 @@ class GP:
                 # used to probabilistically determine how child of both parents is created 
                 rand = random.uniform(0, 1)
 
-                if rand <= 0.15:
+                # if rand <= 0.23:
+                #     child = self.crossover(parent_one, parent_two)
+
+                #     while child == None:
+                #         parent_one = self.tournament_select(population)
+                #         parent_two = self.tournament_select(population)
+
+                #         child = self.crossover(parent_one, parent_two)
+                        
+                if rand <= 0.7:
                     child = self.crossover(parent_one, parent_two)
 
                     while child == None:
@@ -56,7 +65,7 @@ class GP:
                         parent_two = self.tournament_select(population)
 
                         child = self.crossover(parent_one, parent_two)
-                        
+
                 elif rand <= 0.95:
                     child = self.crossover_2(parent_one, parent_two)
 
@@ -67,6 +76,10 @@ class GP:
                         child = self.crossover_2(parent_one, parent_two)
                     
                 # perform mutate some percentage of the time
+                # elif rand <= 0.93:
+                #     self.mutate_2(parent_one)
+                #     child = parent_one
+                
                 else:
                     self.mutate(parent_one)
                     child = parent_one
@@ -211,9 +224,9 @@ class GP:
         ind.add_shape()
         
     def mutate_2(self, ind):
-        constant = 10
+        constant = 40
         
-        num_pix = 10
+        num_pix = 40
         
         for i in range(num_pix):
             x = random.randint(0, self.l-1)
@@ -234,7 +247,7 @@ class GP:
 def main():
     gp = GP(r"davidson3.png")
 
-    fittest = gp.run_gp(150, 1000)
+    fittest = gp.run_gp(200, 1000)
     plt.imshow(fittest.image)
     plt.show()
 

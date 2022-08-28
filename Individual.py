@@ -34,7 +34,7 @@ class Individual:
 
         # number of polygons to add to image
         # the higher this is the higher stochasticity and potential for detail we have 
-        iterations = random.randint(3, 10)
+        iterations = random.randint(3, 6)
 
         region = (self.l + self.w)//8
 
@@ -78,7 +78,7 @@ class Individual:
         img = self.image
 
         for i in range(iterations):
-            num_points = random.randint(3, 7)
+            num_points = random.randint(3, 6)
 
             region_x = random.randint(0, self.l)
             region_y = random.randint(0, self.w)
