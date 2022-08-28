@@ -7,7 +7,6 @@ from pandas import DataFrame
 
 import matplotlib.pyplot as plt
 
-
 class GP:
     def __init__(self, filename):
         original_image = Image.open(filename)
@@ -16,10 +15,10 @@ class GP:
         # self.target_image = original_image.resize((160,120))
 
         # debugging 
-        self.target_image = original_image.resize((200,200))
+        # self.target_image = original_image.resize((200,200))
         
         # mona lisa image
-        # self.target_image = original_image.resize((111,166))
+        self.target_image = original_image.resize((176,203))
 
         self.l, self.w = self.target_image.size
         
@@ -64,7 +63,7 @@ class GP:
 
                 #         child = self.crossover(parent_one, parent_two)
                         
-                if rand <= 0.5:
+                if rand < 0.3:
                     child = self.crossover(parent_one, parent_two)
 
                     while child == None:
@@ -140,7 +139,7 @@ class GP:
 #             display(fittest)
 
     def tournament_select(self, population):
-        tournament_size = 4
+        tournament_size = 6
 
         indices = np.random.choice(len(population), tournament_size)
 
@@ -183,6 +182,7 @@ class GP:
 
         rand = random.random()
 
+        # perform horizontal crossover point 
         if rand <= horizontal_prob:
 
             split_point = random.randint(1, self.w)
@@ -190,6 +190,7 @@ class GP:
             first = np.ones((split_point, self.l))
             first = np.vstack((first, np.zeros((self.w-split_point, self.l))))
 
+        # perform vertical crossover point 
         else:
             split_point = random.randint(1, self.l)
         
@@ -217,46 +218,12 @@ class GP:
         
         child.get_fitness(self.target_image)
 
+        # elitism 
         if child.fitness == min(ind1.fitness, ind2.fitness, child.fitness):
             return child
 
         return None
 
-    # superfluous
-    def crossover_vertical(self, ind1, ind2):
-        # split_point = random.randint(1, self.l) 
-
-        split_point = self.l // 2
-        
-        first = np.ones((self.w, split_point))
-
-        first = np.hstack((first, np.zeros((self.w, self.l-split_point))))
-
-        second = 1 - first
-
-        # Creates the 4 dimensional versions to perform the mutliplying across all color channels 
-        first = np.dstack([first,first,first,first])
-        second = np.dstack([second,second,second,second])
-
-        # Multiply parent1 with first and multiply parent2 with second. Then simplay add them element wise and it should produce the crossover child.
-
-        half_chromo_1 = np.multiply(first, ind1.array)
-        half_chromo_2 = np.multiply(second, ind2.array)
-        
-        child_array = np.add(half_chromo_1, half_chromo_2)
-        
-        child = Individual(self.l, self.w)
-        
-        child.image = Image.fromarray(child_array.astype(np.uint8))
-        child.array = child_array.astype(np.uint8)
-        
-        child.get_fitness(self.target_image)
-
-        if child.fitness == min(ind1.fitness, ind2.fitness, child.fitness):
-            return child
-
-        return None
-    
     def crossover_3(self, ind1, ind2):
         first = np.random.randint(2, size=(self.w, self.l, 4))
         
@@ -332,9 +299,9 @@ class GP:
         return np.array(image)
 
 def main():
-    gp = GP(r"davidson3.png")
+    gp = GP(r"mona_lisa.png")
 
-    fittest = gp.run_gp(100, 1000)
+    fittest = gp.run_gp(100, 500)
     plt.imshow(fittest.image)
     plt.show()
 
