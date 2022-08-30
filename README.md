@@ -8,7 +8,6 @@
 *** Thanks again! Now go create something AMAZING! :D
 -->
 
-
 <!-- PROJECT SHIELDS -->
 <!--
 *** I'm using markdown "reference style" links for readability.
@@ -126,7 +125,7 @@ We can repeat the process of creating future generations for a set number of gen
 
 Now that we have introduced a genetic algorithm, we can dive into my genetic algorithm that seeks to recreate an image.
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<!-- <p align="right">(<a href="#readme-top">back to top</a>)</p> -->
 
 
 ### Built With
@@ -140,54 +139,104 @@ Using the following libraries:
 * [Numpy](https://numpy.org/) (Perform vectorized image manipulation and calculations)
 * [Colour](https://colour.readthedocs.io/en/latest/index.html) (Delta E calculations)
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
+<!-- <p align="right">(<a href="#readme-top">back to top</a>)</p> -->
 
 
 <!-- GETTING STARTED -->
 ## Getting Started
 
-This is an example of how you may give instructions on setting up your project locally.
-To get a local copy up and running follow these simple example steps.
+Getting started is as simple as instantiating a GP class from GP.py as the following:
 
-### Prerequisites
+``` 
+gp = GP(r"mona_lisa.png")
+fittest = gp.run_gp(100, 500)
+plt.imshow(fittest.image)
+plt.show()
+```
 
-This is an example of how to list things you need to use the software and how to install them.
-* npm
-  ```sh
-  npm install npm@latest -g
-  ```
-
-### Installation
-
-_Below is an example of how you can instruct your audience on installing and setting up your app. This template doesn't rely on any external dependencies or services._
-
-1. Get a free API Key at [https://example.com](https://example.com)
-2. Clone the repo
-   ```sh
-   git clone https://github.com/your_username_/Project-Name.git
-   ```
-3. Install NPM packages
-   ```sh
-   npm install
-   ```
-4. Enter your API in `config.js`
-   ```js
-   const API_KEY = 'ENTER YOUR API';
-   ```
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
+The arguments of the `run_gp` method are `(size of the initial population, number of generations to run)`. For most of my experiments, an initial population of size 100 and 5,000 generations was enough to produce great results. By vectorizing the majority of the image manipulations, I am able to run those settings comfortably on my laptop with a run-time of several minutes. 
 
 <!-- USAGE EXAMPLES -->
-## Usage
+## Hyperparameters
 
-Use this space to show useful examples of how a project can be used. Additional screenshots, code examples and demos work well in this space. You may also link to more resources.
+When tuning hyperparameters, the variables of interest are the following:
 
-_For more examples, please refer to the [Documentation](https://example.com)_
+* Initial Population
+  * Size of the initial population
+  * The lower and upper bound on the number of random shapes
+* Fitness Function
+  * Whether to use Delta_E or Euclidean Distance
+* Selection
+  * Altering the size of a tournament
+* Crossover
+  * Different probabilistic combinations
+* Mutation
+  * Varying the probability of a mutation occurring
+  * Changing the probability of using mutation 1 versus mutation 2
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+We will now dive into the code to change each of the following hyperparameters.
+
+### Initial Population
+
+Changing the size of the initial population can be done by the first argument passed into the `GP` class' `GP.run_gp` method. 
+
+Each individual is created by the `Individual` class found in `Individual.py`. When a random individual is created, it is given a random background color. Then, a random number of polygons of random sides with random color is added onto that background. 
+
+All of this is within the Individual's `create_random_image_array` method. 
+
+```
+def create_random_image_array(self):
+
+    # number of polygons to add to image
+    iterations = random.randint(3, 6)
+
+    region = (self.l + self.w)//8
+    img = Image.new("RGBA", (self.l, self.w), self.rand_color())
+
+    # number of points for each polygon
+    for i in range(iterations):
+        num_points = random.randint(3, 6)
+
+        ...
+```
+
+Below are examples of individuals created this way. 
+
+<div align="center">
+    <img src="figures/2_Initial_Individuals.png" width="570" height="268" >
+</div>
+
+### Fitness Function
+
+I experimented with two main fitness functions. The fitness function is found within the `Individual` class. 
+
+1. Euclidean Distance: A relatively straightforward implementation where I take the Euclidean distance between the RGB values of two pixels. Then, I perform this operation across the entire image and take the mean. To use Euclidean distance:
+
+```
+def get_fitness(self, target):
+    diff_array = np.subtract(np.array(target), self.array)
+    self.fitness = np.mean(np.absolute(diff_array))
+```
+
+However, Euclidean distance has one main disadvantage. It is the fact that our eyes do not perceive difference in RGB values according to Euclidan distance. The example below illustrates this. 
+
+<div align="center">
+    <img src="figures/equidistant_colors.png" width="591" height="223" >
+</div>
+
+In an attempt to quantify how human eyes detect differences in color, scientists devised the [Delta_E](http://zschuessler.github.io/DeltaE/learn/) metric. 
+
+2. Delta_E: A more robust measurement of color difference true to the human eye. To use the Delta_E fitness function:
+
+```
+def get_fitness(self, target):
+    self.fitness = np.mean(colour.difference.delta_e.delta_E_CIE1976(target, self.array))
+```
+
+
+
+
+<!-- <p align="right">(<a href="#readme-top">back to top</a>)</p> -->
 
 
 
@@ -204,7 +253,7 @@ _For more examples, please refer to the [Documentation](https://example.com)_
 
 See the [open issues](https://github.com/othneildrew/Best-README-Template/issues) for a full list of proposed features (and known issues).
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<!-- <p align="right">(<a href="#readme-top">back to top</a>)</p> -->
 
 
 
@@ -222,18 +271,7 @@ Don't forget to give the project a star! Thanks again!
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
-
-<!-- LICENSE -->
-## License
-
-Distributed under the MIT License. See `LICENSE.txt` for more information.
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-
+<!-- <p align="right">(<a href="#readme-top">back to top</a>)</p> -->
 
 <!-- CONTACT -->
 ## Contact
@@ -242,7 +280,7 @@ Your Name - [@your_twitter](https://twitter.com/your_username) - email@example.c
 
 Project Link: [https://github.com/your_username/repo_name](https://github.com/your_username/repo_name)
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+<!-- <p align="right">(<a href="#readme-top">back to top</a>)</p> -->
 
 
 

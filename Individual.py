@@ -40,6 +40,7 @@ class Individual:
 
         img = Image.new("RGBA", (self.l, self.w), self.rand_color())
 
+        #number of points for each polygon
         for i in range(iterations):
             num_points = random.randint(3, 6)
 
