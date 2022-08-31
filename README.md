@@ -233,12 +233,124 @@ def get_fitness(self, target):
     self.fitness = np.mean(colour.difference.delta_e.delta_E_CIE1976(target, self.array))
 ```
 
+My experiments indicated that Delta_E generated better outputs virtually every single time.
 
 
+### Selection
 
-<!-- <p align="right">(<a href="#readme-top">back to top</a>)</p> -->
+I implemented tournament selection to select parents. I randomly sampled the population given a tournament size and selected the fittest individual to be the winner of the tournament. 
 
+```    
+def tournament_select(self, population):
+    tournament_size = 6
+    indices = np.random.choice(len(population), tournament_size)
+    random_subset = [population[i] for i in indices]
+    ...
+```
 
+To experiment with different tournament sizes, alter the `tournament_size` variable. I had the most success with a tournament size between 6-8% of the total population size. 
+
+### Crossover
+
+I implemented 3 unique crossover functions and experimented with probabilistic blends of all 3. Below, I describe each crossover function and give an example.
+
+#### Crossover 1 - Blending
+
+In this functon, I assign opacity $x$ to $\text{parent}_{1}$ and assign opacity $1-x$ to $\text{parent}_{2}$. Then we overlay both of them to create the child. If $x$ is 0, a copy of $\text{parent}_{1}$ is produced. If $x$ is 1, a copy of $\text{parent}_{2}$ is produced.
+
+To determine $x$, I sample a uniform distribution where $x \in (0,1)$. One advantage of not fixing $x = 0.5$ is that this introduces stochasticity to the crossover function and can produce different children given the same parents.
+
+```
+def crossover(self, ind1, ind2):
+        child = Individual(self.l, self.w)
+
+        # random float between 0 and 1 
+        blend_alpha = random.random()
+
+        child.image = Image.blend(ind1.image, ind2.image, blend_alpha)
+        child.array = np.array(child.image)
+        child.get_fitness(self.target_image)
+        return child
+```
+
+Below is an example of what this look like:
+<div align="center">
+    <img src="figures/crossover_1.png" width="591" height="223" >
+</div>
+
+#### Crossover 2 - Crossover Point
+
+In this approach, we select a random row or column  to be a crossover point. Everything up until that row or column is from $\text{parent}_{1}$ and everything including and after that row or column is from $\text{parent}_{2}$. Once again, this row or column is selected from a uniform distribution. The two examples below illustrate a row crossover point and a column crossover point respectively. 
+
+<div align="center">
+    <img src="figures/crossover_2.png" width="591" height="223" >
+</div>
+
+<div align="center">
+    <img src="figures/crossover_2_vertical.png" width="591" height="223" >
+</div>
+
+I assigned an equal chance for Crossover 2 to be done horizontally or vertically. It would be interesting to test diagonal crossover lines but for my experiments, I only used horizontal or vertical crossovers.
+
+```
+def crossover_2(self, ind1, ind2, horizontal_prob):
+
+        rand = random.random()
+
+        # perform horizontal crossover point 
+        if rand <= horizontal_prob:
+
+            split_point = random.randint(1, self.w)
+            
+            first = np.ones((split_point, self.l))
+            first = np.vstack((first, np.zeros((self.w-split_point, self.l))))
+
+        # perform vertical crossover point 
+        else:
+            split_point = random.randint(1, self.l)
+        
+            first = np.ones((self.w, split_point))
+            first = np.hstack((first, np.zeros((self.w, self.l-split_point))))
+            
+        second = 1 - first
+
+        # Creates the 4 dimensional versions to perform the mutliplying across all color channels 
+        first = np.dstack([first,first,first,first])
+        second = np.dstack([second,second,second,second])
+
+        half_chromo_1 = np.multiply(first, ind1.array)
+        half_chromo_2 = np.multiply(second, ind2.array)
+        
+        child_array = np.add(half_chromo_1, half_chromo_2)
+        ...
+```
+
+#### Crossover 3 - Pixel-Wise
+
+For this crossover function, each pixel in the child is selected randomly from either $\text{parent}_{1}$ or $\text{parent}_{2}$.
+
+```
+    def crossover_3(self, ind1, ind2):
+        first = np.random.randint(2, size=(self.w, self.l, 4))
+        
+        second = 1 - first
+    
+        half_chromo_1 = np.multiply(first, ind1.array)
+        half_chromo_2 = np.multiply(second, ind2.array)
+        
+        child_array = np.add(half_chromo_1, half_chromo_2)
+        ...
+```
+
+This technique performs well but ends up creating images that look granulated as you can see in the example below. As a result, I didn't utilize this crossover function much. 
+
+<div align="center">
+    <img src="figures/crossover_3.png" width="591" height="223" >
+</div>
+
+### Mutation
+
+I developed 2 different mutation functions that would slightly modify an individual. 
 
 <!-- ROADMAP -->
 ## Roadmap
