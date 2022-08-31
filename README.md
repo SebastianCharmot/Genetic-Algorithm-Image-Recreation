@@ -48,7 +48,7 @@
 </div>
 
 <!-- TABLE OF CONTENTS -->
-<details>
+<details open>
   <summary>Table of Contents</summary>
   <ol>
     <li>
@@ -352,36 +352,88 @@ This technique performs well but ends up creating images that look granulated as
 
 I developed 2 different mutation functions that would slightly modify an individual. 
 
-<!-- ROADMAP -->
-## Roadmap
+#### Mutation 1 - Adding random shape
 
-- [x] Add Changelog
-- [x] Add back to top links
-- [ ] Add Additional Templates w/ Examples
-- [ ] Add "components" document to easily copy & paste sections of the readme
-- [ ] Multi-language Support
-    - [ ] Chinese
-    - [ ] Spanish
+To perform this mutation, I superimpose a random number of shapes of random color onto an individual.
 
-See the [open issues](https://github.com/othneildrew/Best-README-Template/issues) for a full list of proposed features (and known issues).
+```
+def mutate(self, ind):
 
-<!-- <p align="right">(<a href="#readme-top">back to top</a>)</p> -->
+        # number of random shapes to add 
+        iterations = random.randint(1, 1)
+        region = random.randint(1,(self.l + self.w)//4)
 
+        img = ind.image
 
+        for i in range(iterations):
+            num_points = random.randint(3, 6)
+            region_x = random.randint(0, self.l)
+            region_y = random.randint(0, self.w)
 
-<!-- CONTRIBUTING -->
-## Contributing
+            xy = []
+            for j in range(num_points):
+                xy.append((random.randint(region_x - region, region_x + region),
+                           random.randint(region_y - region, region_y + region)))
 
-Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+            img1 = ImageDraw.Draw(img)
+            img1.polygon(xy, fill=ind.rand_color())
 
-If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
-Don't forget to give the project a star! Thanks again!
+```
 
-1. Fork the Project
-2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the Branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+The result of this mutation can be seen below.
+
+<div align="center">
+    <img src="figures/mutation_1.png" width="478" height="241" >
+</div>
+
+#### Mutation 2 - Adding a constant to a subset of pixels
+
+In this mutation, I select a random subset of pixels and add a constant to their RGB values. 
+
+```
+def mutate_2(self, ind):
+    
+    num_pix = 40
+    
+    for i in range(num_pix):
+        x = random.randint(0, self.l-1)
+        y = random.randint(0, self.w-1)
+        z = random.randint(0, 3)
+        
+        # alteration to pixels by randomized constant 
+        ind.array[x][y][z] = ind.array[x][y][z] + random.randint(-10,10)
+```
+
+The results of this kind of mutation can be seen in the figure below.
+
+<div align="center">
+    <img src="figures/mutation_2.png" width="478" height="241" >
+</div>
+
+It's effects are relatively subtle and did not seem to be an effective mutation operation. It also introduces the effect of "pixelation" which I believe tend to decrease the visually appearance of individuals. 
+
+## Experimentation
+
+Given all this information about how the specific hyperparameters work, you can start to experiment with your own images. As a baseline, I will provide the hyperparameters that worked best for me:
+
+* Initial Population
+  * Size of 100 
+  * Each with [3, 6] shapes of random color 
+* Fitness Function
+  * Only Delta_E
+* Selection 
+  * Tournament size of 6
+* Repopulation
+  * Crossover
+    * Using a probabilistic mix of 30% crossover 1 (blending) and 60% crossover 2 (crossover)
+  * Mutation
+    * Using a 10% chance for mutation 1 (adding shape)
+* Number of generations
+  * Anywhere between 5,000 and 10,000 
+  
+## Results
+
+1. Open a Pull Request
 
 <!-- <p align="right">(<a href="#readme-top">back to top</a>)</p> -->
 

@@ -278,7 +278,6 @@ class GP:
 
         
     def mutate_2(self, ind):
-        constant = 40
         
         num_pix = 40
         
@@ -287,7 +286,7 @@ class GP:
             y = random.randint(0, self.w-1)
             z = random.randint(0, 3)
             
-            ind.array[x][y][z] = ind.array[x][y][z] + constant
+            ind.array[x][y][z] = ind.array[x][y][z] + random.randint(-10,10)
                 
         ind.image = self.to_image(ind.array)
         ind.get_fitness(self.target_image)
