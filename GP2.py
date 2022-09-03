@@ -112,9 +112,14 @@ class GP:
                 data['pop_gen_used'].append("random_image_array_1")
                 data['im_size'].append("(" + str(self.w) + "," + str(self.l) + ")")
             
-            if i % 100 == 0 or i == epochs - 1:
+            if i % 1000 == 0 or i == epochs - 1:
                 print("Most fit individual in epoch " + str(i) +
                       " has fitness: " + str(fittest_estimate))
+                
+                population.sort(key=lambda ind: ind.fitness)
+                fittest = population[0]
+
+                fittest.image.save("fittest_" + str(i)+".png")
                 
                 data_df = DataFrame(data)
     
@@ -300,7 +305,7 @@ class GP:
 def main():
     gp = GP(r"mona_lisa.png")
 
-    fittest = gp.run_gp(100, 500)
+    fittest = gp.run_gp(100, 10000)
     plt.imshow(fittest.image)
     plt.show()
 

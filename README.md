@@ -1,12 +1,5 @@
 <!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
 <a name="readme-top"></a>
-<!--
-*** Thanks for checking out the Best-README-Template. If you have a suggestion
-*** that would make this better, please fork the repo and create a pull request
-*** or simply open an issue with the tag "enhancement".
-*** Don't forget to give the project a star!
-*** Thanks again! Now go create something AMAZING! :D
--->
 
 <!-- PROJECT SHIELDS -->
 <!--
@@ -59,15 +52,32 @@
     </li>
     <li>
       <a href="#getting-started">Getting Started</a>
-      <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
-        <li><a href="#installation">Installation</a></li>
-      </ul>
     </li>
-    <li><a href="#usage">Usage</a></li>
-    <li><a href="#roadmap">Roadmap</a></li>
-    <li><a href="#contributing">Contributing</a></li>
-    <li><a href="#license">License</a></li>
+    <li>
+        <a href="#hyperparameters">Hyperparameters</a>
+        <ul> 
+            <li><a href="#initial-population">Initial Population</a></li>
+            <li><a href="#initial-population">Fitness Function</a></li>
+                <ul>
+                    <li><a href="#euclidean-distance">Euclidean Distance</a></li>
+                    <li><a href="#delta-e">Delta_E</a></li>
+                </ul>
+            <li><a href="#selection">Selection</a></li>
+            <li><a href="#crossover">Crossover</a></li>
+                <ul>
+                    <li><a href="#crossover-1---blending">Crossover 1 - Blending</a></li>
+                    <li><a href="#crossover-2---crossover-point">Crossover 2 - Crossover Point</a></li>
+                    <li><a href="#crossover-3---pixel-wise">Crossover 3 - Pixel-Wise</a></li>
+                </ul>
+            <li><a href="#mutation">Mutation</a></li>
+                <ul>
+                    <li><a href="#mutation-1---random-shape">Mutation 1 - Random Shape</a></li>
+                    <li><a href="#mutation-2---adding-a-constant">Mutation 2 - Adding a Constant</a></li>
+                </ul>
+        </ul>
+    </li>
+    <li><a href="#experimentation">Experimentation</a></li>
+    <li><a href="#results">Results</a></li>
     <li><a href="#contact">Contact</a></li>
     <li><a href="#acknowledgments">Acknowledgments</a></li>
   </ol>
@@ -137,7 +147,7 @@ Using the following libraries:
 * [Pillow](https://pillow.readthedocs.io/en/stable/index.html) (Image manipulation)
 * [Matplotlib](https://matplotlib.org/) (Image display)
 * [Numpy](https://numpy.org/) (Perform vectorized image manipulation and calculations)
-* [Colour](https://colour.readthedocs.io/en/latest/index.html) (Delta E calculations)
+* [Colour](https://colour.readthedocs.io/en/latest/index.html) (Delta E color difference calculations)
 
 <!-- <p align="right">(<a href="#readme-top">back to top</a>)</p> -->
 
@@ -145,10 +155,16 @@ Using the following libraries:
 <!-- GETTING STARTED -->
 ## Getting Started
 
-Getting started is as simple as instantiating a GP class from GP.py as the following:
+The first step is installing the necessary libraries. This can be done by running the following:
+
+```
+pip3 install -r requirements.txt
+```
+
+Getting started with the genetica algorithm is as simple as instantiating a GP class from GP.py as the following:
 
 ``` 
-gp = GP(r"mona_lisa.png")
+gp = GP(r"target_image.png")
 fittest = gp.run_gp(100, 500)
 plt.imshow(fittest.image)
 plt.show()
@@ -210,7 +226,9 @@ Below are examples of individuals created this way.
 
 I experimented with two main fitness functions. The fitness function is found within the `Individual` class. 
 
-1. Euclidean Distance: A relatively straightforward implementation where I take the Euclidean distance between the RGB values of two pixels. Then, I perform this operation across the entire image and take the mean. To use Euclidean distance:
+#### Euclidean Distance
+
+ A relatively straightforward implementation where I take the Euclidean distance between the RGB values of two pixels. Then, I perform this operation across the entire image and take the mean. To use Euclidean distance:
 
 ```
 def get_fitness(self, target):
@@ -226,7 +244,9 @@ However, Euclidean distance has one main disadvantage. It is the fact that our e
 
 In an attempt to quantify how human eyes detect differences in color, scientists devised the [Delta_E](http://zschuessler.github.io/DeltaE/learn/) metric. 
 
-2. Delta_E: A more robust measurement of color difference true to the human eye. To use the Delta_E fitness function:
+#### Delta E
+
+Delta_E is a more robust measurement of color difference true to the human eye. It was developed by the International Commission on Illumination and is considered the standard color difference measurement tool. To use the Delta_E fitness function, we simply leverage the colour library in the following manner:
 
 ```
 def get_fitness(self, target):
@@ -352,7 +372,7 @@ This technique performs well but ends up creating images that look granulated as
 
 I developed 2 different mutation functions that would slightly modify an individual. 
 
-#### Mutation 1 - Adding random shape
+#### Mutation 1 - Random Shape
 
 To perform this mutation, I superimpose a random number of shapes of random color onto an individual.
 
@@ -386,7 +406,7 @@ The result of this mutation can be seen below.
     <img src="figures/mutation_1.png" width="478" height="241" >
 </div>
 
-#### Mutation 2 - Adding a constant to a subset of pixels
+#### Mutation 2 - Adding a Constant
 
 In this mutation, I select a random subset of pixels and add a constant to their RGB values. 
 

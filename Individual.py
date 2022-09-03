@@ -117,11 +117,11 @@ class Individual:
         # self.fitness = np.sum(delta_E)
 
         """ Original """
-        diff_array = np.subtract(np.array(target), self.array)
-        diff = np.mean(np.absolute(diff_array)) + np.mean(colour.difference.delta_e.delta_E_CIE1976(target, self.array))
-        self.fitness = diff
+        # diff_array = np.subtract(np.array(target), self.array)
+        # diff = np.mean(np.absolute(diff_array))
+        # self.fitness = diff
 
-        # self.fitness = np.mean(colour.difference.delta_e.delta_E_CIE1976(target, self.array))
+        self.fitness = np.mean(colour.difference.delta_e.delta_E_CIE1976(target, self.array))
 
     # def get_fitness_delta_e(self, target):
     #     delta_E = colour.delta_E(self.array, target)
