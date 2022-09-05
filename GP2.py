@@ -18,11 +18,18 @@ class GP:
         # self.target_image = original_image.resize((200,200))
         
         # mona lisa image
-        self.target_image = original_image.resize((176,203))
+        # self.target_image = original_image.resize((176,203))
+        
+        # mona lisa twice as large (times 1.5)
+        self.target_image = original_image.resize((264,305))
+
+        # mona lisa twice as large (times 2.5)
+        # self.target_image = original_image.resize((440,508))
 
         self.l, self.w = self.target_image.size
         
         self.target_image_array = self.to_array(self.target_image)
+
 
     def run_gp(self, pop_size, epochs):
         data = {'epoch':[], 'fitness_estimate':[], 'crossover_used':[], 'pop_gen_used':[], 'im_size':[]}
@@ -92,19 +99,14 @@ class GP:
                     while child == None:
                         parent_one = self.tournament_select(population)
                         child = self.mutate(parent_one)
-                    # child = parent_one
 
-                # make a new individual
-                # else:
-                #     child = Individual(self.l, self.w)
-                #     child.get_fitness(self.target_image)
-
-                # add mutated or crossed indiv to new_pop
+                # add child to new population
                 new_pop.append(child)
 
             # set population = new_pop
             population = new_pop
             
+            # fitness data recording 
             if i % 100 == 0 or i == epochs - 1:
                 data['epoch'].append(i)
                 data['fitness_estimate'].append(fittest_estimate)
@@ -112,36 +114,32 @@ class GP:
                 data['pop_gen_used'].append("random_image_array_1")
                 data['im_size'].append("(" + str(self.w) + "," + str(self.l) + ")")
             
-            if i % 1000 == 0 or i == epochs - 1:
+            # save images on interval to see progress  
+            # if i % 1000 == 0 or i == epochs - 1:
+            if i % 100 == 0 or i == epochs - 1:
+
                 print("Most fit individual in epoch " + str(i) +
-                      " has fitness: " + str(fittest_estimate))
+                    " has fitness: " + str(fittest_estimate))
                 
                 population.sort(key=lambda ind: ind.fitness)
                 fittest = population[0]
 
-                fittest.image.save("fittest_" + str(i)+".png")
+                fittest.image.save("gif2/fittest_" + str(i)+".png")
                 
                 data_df = DataFrame(data)
     
                 data_df.to_csv("data_cross.csv")
 
-            # fittest.to_image()
-#             Image.fromarray(fittest.array).show()
-
-            # fittest = Image.fromarray(fittest.array)
-            
-#             fittest.save("fittest.png", "PNG")
-
+        # save collected data to csv 
         data_df = DataFrame(data)
-    
         data_df.to_csv("data_cross.csv")
 
+        # fittest individual of the final population 
         population.sort(key=lambda ind: ind.fitness)
         fittest = population[0]
 
         return fittest
 
-#             display(fittest)
 
     def tournament_select(self, population):
         tournament_size = 6
@@ -168,16 +166,15 @@ class GP:
         # random float between 0 and 1 
         blend_alpha = random.random()
 
-        # child_image = Image.blend(ind1.image, ind2.image, 0.5)
-
-        # if alpha is 0.0, a copy of the first image is returned. 
-        # If alpha is 1.0, a copy of the second image is returned.
+        # if blend_alpha is 0.0, a copy of the first image is returned. 
+        # If blend_alpha is 1.0, a copy of the second image is returned.
         # use a random blend_alpha \in (0,1) 
         child_image = Image.blend(ind1.image, ind2.image, blend_alpha)
         child.image = child_image
         child.array = np.array(child_image)
         child.get_fitness(self.target_image)
 
+        # elitism 
         if child.fitness == min(ind1.fitness, ind2.fitness, child.fitness):
             return child
 
@@ -305,7 +302,7 @@ class GP:
 def main():
     gp = GP(r"mona_lisa.png")
 
-    fittest = gp.run_gp(100, 10000)
+    fittest = gp.run_gp(100, 15000)
     plt.imshow(fittest.image)
     plt.show()
 
