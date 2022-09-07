@@ -32,6 +32,17 @@ class GP:
 
 
     def run_gp(self, pop_size, epochs):
+        """
+        Main driver of the genetic algorithm
+
+        Keyword arguments:
+        pop_size -- the population size for each generation
+        epochs -- number of generations to run 
+
+        Returns:
+        fittest -- individual with the best fitness from final generation
+        """
+
         data = {'epoch':[], 'fitness_estimate':[], 'crossover_used':[], 'pop_gen_used':[], 'im_size':[]}
         
         population = []
@@ -58,17 +69,8 @@ class GP:
 
                 fittest_estimate = min(parent_one.fitness, parent_two.fitness, fittest_estimate)
 
-                # used to probabilistically determine how child of both parents is created 
+                # probabilistically determine how child of both parents is created 
                 rand = random.uniform(0, 1)
-
-                # if rand <= 0.23:
-                #     child = self.crossover(parent_one, parent_two)
-
-                #     while child == None:
-                #         parent_one = self.tournament_select(population)
-                #         parent_two = self.tournament_select(population)
-
-                #         child = self.crossover(parent_one, parent_two)
                         
                 if rand < 0.3:
                     child = self.crossover(parent_one, parent_two)
@@ -87,11 +89,6 @@ class GP:
                         parent_two = self.tournament_select(population)
 
                         child = self.crossover_2(parent_one, parent_two, 0.5)
-                    
-                # perform mutate some percentage of the time
-                # elif rand <= 0.93:
-                #     self.mutate_2(parent_one)
-                #     child = parent_one
                 
                 else:
                     child = self.mutate(parent_one)
@@ -141,26 +138,45 @@ class GP:
         return fittest
 
 
-    def tournament_select(self, population):
-        tournament_size = 6
+    def tournament_select(self, population, tournament_size=6):
+        """
+        Selects the most fit individual from a randomly sampled subset of the population
 
+        Keyword arguments:
+        population -- current generation's population
+        tournament_size -- number of individuals randomly sampled to participate
+
+        Returns:
+        winner -- individual with the best fitness out of the tournament_size participants
+        """
+
+        # randomly sample participants
         indices = np.random.choice(len(population), tournament_size)
-
         random_subset = [population[i] for i in indices]
 
         winner = None
 
+        # find individual with best fitness 
         for i in random_subset:
             if (winner == None):
                 winner = i
-
             elif i.fitness < winner.fitness:
-                # if current tree is more fit than current winner
                 winner = i
 
         return winner
 
     def crossover(self, ind1, ind2):
+        """
+        Selects the most fit individual from a randomly sampled subset of the population
+
+        Keyword arguments:
+        population -- current generation's population
+        tournament_size -- number of individuals randomly sampled to participate
+
+        Returns:
+        winner -- individual with the best fitness out of the tournament_size participants
+        """
+        
         child = Individual(self.l, self.w)
 
         # random float between 0 and 1 
