@@ -165,16 +165,18 @@ class GP:
 
         return winner
 
+
     def crossover(self, ind1, ind2):
         """
-        Selects the most fit individual from a randomly sampled subset of the population
+        Performs 'blend' crossover given two parents and creates a child \
+            It takes a weighted average of each parent and overlays them
 
         Keyword arguments:
-        population -- current generation's population
-        tournament_size -- number of individuals randomly sampled to participate
+        ind1 -- parent number 1
+        ind2 -- parent number 2
 
         Returns:
-        winner -- individual with the best fitness out of the tournament_size participants
+        child or None -- child of the two parents if it is more fit than both parents
         """
         
         child = Individual(self.l, self.w)
@@ -195,8 +197,21 @@ class GP:
             return child
 
         return None
+
     
     def crossover_2(self, ind1, ind2, horizontal_prob):
+        """
+        Performs 'crossover point' crossover given two parents and creates a child \
+            Randomly selects the crossover point to be either a row or column \
+            Everything up until the crossover point is from parent 1, everything after is parent 2
+
+        Keyword arguments:
+        ind1 -- parent number 1
+        ind2 -- parent number 2
+
+        Returns:
+        child or None -- child of the two parents if it is more fit than both parents
+        """
 
         rand = random.random()
 
@@ -242,7 +257,19 @@ class GP:
 
         return None
 
+
     def crossover_3(self, ind1, ind2):
+        """
+        Performs 'pixel-wise' crossover given two parents and creates a child \
+            Each pixel is randomly selected from either parent 1 or parent 2
+
+        Keyword arguments:
+        ind1 -- parent number 1
+        ind2 -- parent number 2
+
+        Returns:
+        child or None -- child of the two parents if it is more fit than both parents
+        """
         first = np.random.randint(2, size=(self.w, self.l, 4))
         
         second = 1 - first
@@ -262,7 +289,17 @@ class GP:
         
         return child
 
+
     def mutate(self, ind):
+        """
+        Mutates an individual by superimposing a random number of randomly colored shapes
+
+        Keyword arguments:
+        ind -- individual to be mutated
+
+        Returns:
+        child -- the individual post mutation
+        """
 
         iterations = random.randint(1, 3)
         region = random.randint(1,(self.l + self.w)//4)
@@ -289,13 +326,17 @@ class GP:
 
         return child 
 
-        if child.fitness == min(ind.fitness, child.fitness):
-            return child
-
-        return None
-
         
     def mutate_2(self, ind):
+        """
+        Mutates an individual by selecting a random subset of pixels and altering their RGB values
+
+        Keyword arguments:
+        ind -- individual to be mutated
+
+        Returns:
+        child -- the individual post mutation
+        """
         
         num_pix = 40
         
@@ -315,6 +356,7 @@ class GP:
     def to_array(self, image):
         return np.array(image)
 
+# driver 
 def main():
     gp = GP(r"mona_lisa.png")
 
@@ -334,10 +376,6 @@ def main():
     # ind3 = gp.crossover_3(ind1, ind2)
     # plt.imshow(ind3.image)
     # plt.show()
-
-
-
-
 
 if __name__ == "__main__":
     main()

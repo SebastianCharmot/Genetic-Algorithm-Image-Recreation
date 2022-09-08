@@ -2,7 +2,7 @@ from Individual import Individual
 from GP2 import GP
 import matplotlib.pyplot as plt
 
-"""4 Initial Individuals Example"""
+"""Generates the figures used in the README"""
 
 def four_initial_example():
 
