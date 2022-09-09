@@ -107,26 +107,12 @@ class Individual:
 # PIL.ImageChops.difference(image1, image2)[source]
 # Returns the absolute value of the pixel-by-pixel difference between the two images.
     def get_fitness(self, target):
-        # delta_E = colormath.color_diff.delta_e_cie1976(self.array, target)
-        # diff = np.sum(delta_E)
-        # self.fitness = diff
-
-        # image_lab = colour.XYZ_to_Lab(colour.sRGB_to_XYZ(self.image.convert('RGB')))
-        # target_lab = colour.XYZ_to_Lab(colour.sRGB_to_XYZ(target.convert('RGB')))
-        # delta_E = colour.delta_E(image_lab, target_lab)
-        # self.fitness = np.sum(delta_E)
-
-        """ Original """
-        # diff_array = np.subtract(np.array(target), self.array)
-        # diff = np.mean(np.absolute(diff_array))
-        # self.fitness = diff
 
         self.fitness = np.mean(colour.difference.delta_e.delta_E_CIE1976(target, self.array))
 
-    # def get_fitness_delta_e(self, target):
-    #     delta_E = colour.delta_E(self.array, target)
-    #     diff = np.sum(delta_E)
-    #     self.fitness = diff
+    def get_fitness_euclidean(self, target):
+        diff_array = np.subtract(np.array(target), self.array)
+        self.fitness = np.mean(np.absolute(diff_array))
 
 # ind = Individual(175,175)
 # display(ind.image)

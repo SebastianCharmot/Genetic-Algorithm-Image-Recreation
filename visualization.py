@@ -1,5 +1,5 @@
 from Individual import Individual
-from GP2 import GP
+from GP import GP
 import matplotlib.pyplot as plt
 
 """Generates the figures used in the README"""
