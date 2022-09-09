@@ -121,7 +121,7 @@ class GP:
                 population.sort(key=lambda ind: ind.fitness)
                 fittest = population[0]
 
-                fittest.image.save("gif2/fittest_" + str(i)+".png")
+                fittest.image.save("gif/fittest_" + str(i)+".png")
                 
                 data_df = DataFrame(data)
     
