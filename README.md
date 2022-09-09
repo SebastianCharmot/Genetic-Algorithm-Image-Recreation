@@ -78,8 +78,6 @@
     </li>
     <li><a href="#experimentation">Experimentation</a></li>
     <li><a href="#results">Results</a></li>
-    <li><a href="#contact">Contact</a></li>
-    <li><a href="#acknowledgments">Acknowledgments</a></li>
   </ol>
 </details>
 
