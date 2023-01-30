@@ -26,6 +26,8 @@
 
   <h3 align="center">Genetic Algorithm for Image Recreation</h3>
 
+  ![](https://github.com/SebastianCharmot/Genetic-Algorithm-Image-Recreation/blob/master/gif/mona_lisa.gif)
+
   <p align="center">
     A from scratch Python implementation of a genetic algorithm that recreates a target image. 
     <br />
